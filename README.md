@@ -40,3 +40,8 @@ TOKEN=YOUR_TELEGRAM_BOT_TOKEN
 ```bash
 python bot.py
 ```
+
+
+## Todo 📝
+
+- [ ] Ask for timezone 🕒 and use that to notify birthdays at the local midnight, instead of the CET time
