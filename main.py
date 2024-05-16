@@ -127,6 +127,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     new_user, t = db_user_ping(update)  # update the user in the database
     reply_keyboard = main_menu(t)  # get the main menu keyboard
 
+    #if new user must send privacy policy from POLICY.md (chunked)
+
+    if new_user:
+        with open("POLICY.md", "r") as file:
+           # split the text in chunks of 4096 characters, because Telegram has a limit of 4096 characters per message
+           # however, we do not split the text in the middle of a line, so we find the last newline character before the 4096th character
+
+            text = file.read()
+            while len(text) > 0:
+                split = text[:4096].rfind("\n")
+                await update.message.reply_text(text[:split], parse_mode="Markdown")
+                text = text[split + 1:]
+
+        
+
     # send the welcome message
     await update.message.reply_text(
         ("Welcome!" if new_user else "Welcome back!") +
@@ -135,6 +150,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_keyboard, one_time_keyboard=True, input_field_placeholder="Action"
         ),
     )
+
 
 
 async def add_birthday(update: Update, context: ContextTypes.DEFAULT_TYPE):
