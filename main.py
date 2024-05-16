@@ -255,13 +255,21 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await start(update, context)
     return ConversationHandler.END
 
+def sort_close(b: Birthday) -> int:
+    now = datetime.datetime.now()
+    datetime_bd = datetime.datetime(now.year, b.birth.month, b.birth.day)
+    if datetime_bd < now:
+        datetime_bd = datetime.datetime(now.year + 1, b.birth.month, b.birth.day)
+    return (datetime_bd - now).days
 
 async def list_birthday(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db_user_ping(update)
     """List all the birthdays in the database"""
     global session
-    birthdays = session.query(Birthday).filter(Birthday.user_id == update.message.from_user.id).order_by(
-        Birthday.last_name).all()
+    today = datetime.datetime.now().date()
+    birthdays = session.query(Birthday).filter(Birthday.user_id == update.message.from_user.id).all()
+    # now order the birthdays by the remaining time until the next birthday
+    birthdays = sorted(birthdays, key=sort_close)
     reply_keyboard = [[
         InlineKeyboardButton("🏠 Home", callback_data="home")  # go back to the main menu
     ]]
